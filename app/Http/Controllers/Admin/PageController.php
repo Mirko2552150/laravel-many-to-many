@@ -23,7 +23,9 @@ class PageController extends Controller
      */
     public function index()
     {
-        //
+      $pages = Page::all();
+
+      return view('admin.pages.index', compact('pages'));
     }
 
     /**
@@ -55,7 +57,7 @@ class PageController extends Controller
            'category_id' => 'required|exists:categories,id', // deve esistere nella TAB categories ID
            'tags' => 'required|array',
            'photos' => 'required|array',
-           'tags.*' => 'exists:tags,id', // chiamata al DB
+           'tags.*' => 'exists:tags,id', // prende tutti VAL dell'Array  e con un chiamata al DB controlla la loro esistenza / ovviamente nella TAB photo dentro la COL ID
            'photos.*' => 'exists:photos,id'
 
        ]);
