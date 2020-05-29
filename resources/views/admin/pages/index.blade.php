@@ -37,7 +37,7 @@
                 </td>
                 <td>{{$page->created_at}}</td>
                 <td>{{$page->update_at}}</td>
-                <td>Visualizza</td>
+                <td><a class="btn btn-primary" href="{{route('admin.pages.show', $page->id)}}">Visualizza</a></td>
                 <td>Modifica</td>
                 <td>Elimina</td>
               </tr>
