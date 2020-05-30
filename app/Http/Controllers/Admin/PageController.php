@@ -60,7 +60,7 @@ class PageController extends Controller
            'title' => 'required|max:255',
            'body' => 'required',
            'category_id' => 'required|exists:categories,id', // deve esistere nella TAB categories ID
-           'tags' => 'array', // il campo deve essere un array
+           'tags' => 'required|array', // il campo deve essere un array
            'photos' => 'required|array',
            'tags.*' => 'exists:tags,id', // prende tutti VAL dell'Array  e con un chiamata al DB controlla la loro esistenza / ovviamente nella TAB photo dentro la COL ID
            'photos.*' => 'exists:photos,id'
@@ -118,7 +118,7 @@ class PageController extends Controller
       $tags = Tag::all();
       $photos = Photo::all();
 
-      return view('admin.pages.edit', compact('categories', 'tags', 'photos'));
+      return view('admin.pages.edit', compact('page', 'categories', 'tags', 'photos'));
     }
 
     /**
@@ -130,7 +130,25 @@ class PageController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+      $page = Page::findOrFail($id);
+      $data = $request->all();
+      $userId = Auth::id(); // utente loggato
+      $author = $page->user_id;
+      if ($userId != $author) {
+        abort('404');
+      }
+
+      $page->fill($data);
+      $update = $page->update();
+      if (!$update) {
+        return redirect()->back();
+      }
+
+      //AGGIORNAMENTO TAB PIVOT PR LE MANY TO MANY
+      $page->tags()->sync($data['tags']);
+      $page->photos()->sync($data['photos']);
+
+      return redirect()->route('admin.pages.show', $page->id);
     }
 
     /**
@@ -141,6 +159,13 @@ class PageController extends Controller
      */
     public function destroy($id)
     {
-        //
+      $page = Page::findOrFail($id);
+      $page->tags()->detach();
+      $page->photos()->detach(); // togliamo le relazioni della TAB pivot
+      $deleted = $page->delete();
+      if (!$deleted) {
+        abort('404');
+      }
+      return redirect()->route('admin.pages.index');
     }
 }

@@ -38,8 +38,16 @@
                 <td>{{$page->created_at}}</td>
                 <td>{{$page->update_at}}</td>
                 <td><a class="btn btn-primary" href="{{route('admin.pages.show', $page->id)}}">Visualizza</a></td>
-                <td>Modifica</td>
-                <td>Elimina</td>
+                <td><a class="btn btn-secondary" href="{{route('admin.pages.edit', $page->id)}}">Modifica</a></td>
+                <td>
+                  @if(Auth::id() == $page->user_id)
+                    <form action="{{route('admin.pages.destroy', $page->id)}}" method="POST">
+                      @csrf
+                      @method('DELETE')
+                      <input  class="btn btn-danger" type="submit" value="Elimina">
+                    </form>
+                  @endif
+                </td>
               </tr>
             @endforeach
           </tbody>
